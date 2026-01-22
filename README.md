@@ -1,5 +1,7 @@
 # Conductor Plugin for Claude Code
 
+> **Note:** This is a port of the [Conductor extension for Gemini CLI](https://github.com/gemini-cli-extensions/conductor) adapted for Claude Code.
+
 **Context-Driven Development** - Measure twice, code once.
 
 Conductor transforms AI-assisted development into a disciplined process with persistent project context, specifications, and phased implementation plans.
