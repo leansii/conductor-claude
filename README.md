@@ -22,20 +22,23 @@ By treating context as a managed artifact alongside your code, Conductor enables
 
 ## Installation
 
-### Option 1: Development Mode (Local Testing)
+### Quick Install (Recommended)
 
 ```bash
-claude --plugin-dir .claude/plugins/conductor
+curl -fsSL https://raw.githubusercontent.com/leansii/conductor-claude/main/install.sh | bash
 ```
 
-### Option 2: Install from Marketplace
+### Manual Install (inside Claude Code)
+
+```
+/plugin marketplace add leansii/conductor-claude
+/plugin install conductor@conductor-marketplace
+```
+
+### Development Mode
 
 ```bash
-# Add marketplace (if published)
-claude marketplace add https://github.com/your-org/conductor-marketplace
-
-# Install plugin
-claude plugin install conductor
+claude --plugin-dir /path/to/conductor-claude
 ```
 
 ## Project Structure
