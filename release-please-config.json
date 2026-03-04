@@ -1,0 +1,12 @@
+{
+  "packages": {
+    ".": {
+      "release-type": "simple",
+      "package-name": "conductor",
+      "extra-files": [
+        ".claude-plugin/plugin.json",
+        ".claude-plugin/marketplace.json"
+      ]
+    }
+  }
+}
