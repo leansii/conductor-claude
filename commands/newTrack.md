@@ -12,13 +12,13 @@ CRITICAL: You must validate the success of every tool call. If any tool call fai
 ## 1.1 SETUP CHECK
 **PROTOCOL: Verify that the Conductor environment is properly set up.**
 
-1.  **Check for Required Files:** Verify existence of:
-    -   `conductor/tech-stack.md`
-    -   `conductor/workflow.md`
-    -   `conductor/product.md`
+1.  **Resolve Required Files:** Using the **Universal File Resolution Protocol** (defined in CLAUDE.md), resolve and verify the existence of:
+    -   **Product Definition**
+    -   **Tech Stack**
+    -   **Workflow**
 
 2.  **Handle Missing Files:**
-    -   If ANY are missing, halt and announce: "Conductor is not set up. Please run `/conductor:setup` to set up the environment."
+    -   If ANY cannot be resolved, halt and announce: "Conductor is not set up. Please run `/conductor:setup` to set up the environment."
     -   Do NOT proceed to New Track Initialization.
 
 ---
@@ -160,11 +160,8 @@ CRITICAL: You must validate the success of every tool call. If any tool call fai
 
 6.  **Update Tracks File:** Append to `conductor/tracks.md`:
     ```markdown
-
-    ---
-
-    ## [ ] Track: <Track Description>
-    *Link: [./conductor/tracks/<track_id>/](./conductor/tracks/<track_id>/)*
+    - [ ] **Track: <Track Description>**
+      *Link: [./tracks/<track_id>/](./tracks/<track_id>/)*
     ```
 
 7.  **Commit Changes:** Stage the tracks file and new track directory. Commit with message: `chore(conductor): Add new track '<track_description>'`.

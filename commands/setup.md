@@ -5,7 +5,7 @@ description: Scaffolds the project and sets up the Conductor environment
 ## 1.0 SYSTEM DIRECTIVE
 You are an AI agent. Your primary function is to set up and manage a software project using the Conductor methodology. This document is your operational protocol. Adhere to these instructions precisely and sequentially. Do not make assumptions.
 
-CRITICAL: You must validate the success of every tool call. If any tool call fails, you MUST halt the current operation immediately, announce the failure to the user, and await further instructions.
+CRITICAL: You must validate the success of every tool call. If a tool call fails (e.g., due to a path error), you should attempt to intelligently self-correct by reviewing the error message. If the failure is unrecoverable after a self-correction attempt, you MUST halt the current operation immediately, announce the failure to the user, and await further instructions.
 
 ---
 
@@ -22,26 +22,34 @@ CRITICAL: You must validate the success of every tool call. If any tool call fai
 
 ---
 
-## 1.2 BEGIN `RESUME` CHECK
-**PROTOCOL: Before starting the setup, determine the project's state using the state file.**
+## 1.2 PROJECT AUDIT
+**PROTOCOL: Before starting the setup, audit existing Conductor artifacts to determine the project's state.**
 
-1.  **Read State File:** Check for the existence of `conductor/setup_state.json`.
-    - If it does not exist, this is a new project setup. Proceed directly to Step 2.0.
-    - If it exists, read its content.
+1.  **Announce:** "Auditing existing Conductor configuration..."
 
-2.  **Resume Based on State:**
-    - Let the value of `last_successful_step` in the JSON file be `STEP`.
-    - Based on the value of `STEP`, jump to the **next logical section**:
+2.  **Check Artifact Existence:** Check for the existence of the following files and directories within the `conductor/` directory:
+    -   `conductor/product.md`
+    -   `conductor/product-guidelines.md`
+    -   `conductor/tech-stack.md`
+    -   `conductor/code_styleguides/`
+    -   `conductor/workflow.md`
+    -   `conductor/index.md`
+    -   `conductor/tracks/` (check for subdirectories containing `plan.md` and `index.md`)
 
-    - If `STEP` is "2.1_product_guide", announce "Resuming setup: The Product Guide (`product.md`) is already complete. Next, we will create the Product Guidelines." and proceed to **Section 2.2**.
-    - If `STEP` is "2.2_product_guidelines", announce "Resuming setup: The Product Guide and Product Guidelines are complete. Next, we will define the Technology Stack." and proceed to **Section 2.3**.
-    - If `STEP` is "2.3_tech_stack", announce "Resuming setup: The Product Guide, Guidelines, and Tech Stack are defined. Next, we will select Code Styleguides." and proceed to **Section 2.4**.
-    - If `STEP` is "2.4_code_styleguides", announce "Resuming setup: All guides and the tech stack are configured. Next, we will define the project workflow." and proceed to **Section 2.5**.
-    - If `STEP` is "2.5_workflow", announce "Resuming setup: The initial project scaffolding is complete. Next, we will generate the first track." and proceed to **Phase 2 (3.0)**.
-    - If `STEP` is "3.3_initial_track_generated":
-        - Announce: "The project has already been initialized. You can create a new track with `/conductor:newTrack` or start implementing existing tracks with `/conductor:implement`."
-        - Halt the `setup` process.
-    - If `STEP` is unrecognized, announce an error and halt.
+3.  **Determine Resume Point:** Use the following priority table (highest match wins) to determine where to resume:
+
+    | Artifact Exists | Target Section | Announcement |
+    |:---|:---|:---|
+    | All files in `conductor/tracks/<track_id>/` (spec, plan, metadata, index) | **HALT** | "The project is already initialized. Use `/conductor:newTrack` or `/conductor:implement`." |
+    | `conductor/index.md` | **Section 3.0** | "Resuming setup: Scaffolding is complete. Next: generate the first track." |
+    | `conductor/workflow.md` | **Section 2.6** | "Resuming setup: Workflow is defined. Next: finalization." |
+    | `conductor/code_styleguides/` (non-empty) | **Section 2.5** | "Resuming setup: Guides configured. Next: define project workflow." |
+    | `conductor/tech-stack.md` | **Section 2.4** | "Resuming setup: Tech Stack defined. Next: select Code Styleguides." |
+    | `conductor/product-guidelines.md` | **Section 2.3** | "Resuming setup: Guidelines complete. Next: define Technology Stack." |
+    | `conductor/product.md` | **Section 2.2** | "Resuming setup: Product Guide complete. Next: create Product Guidelines." |
+    | (None found) | **Section 2.0** | (No announcement — fresh start) |
+
+4.  **Execute Resume:** Announce the finding from the table above, then always proceed to **Section 2.0** first to establish Greenfield/Brownfield context. After Section 2.0 completes, fast-forward to the target section identified above.
 
 ---
 
@@ -51,14 +59,14 @@ CRITICAL: You must validate the success of every tool call. If any tool call fai
 ### 2.0 Project Inception
 1.  **Detect Project Maturity:**
     -   **Classify Project:** Determine if the project is "Brownfield" (Existing) or "Greenfield" (New) based on the following indicators:
-    -   **Brownfield Indicators:**
-        -   Check for existence of version control directories: `.git`, `.svn`, or `.hg`.
-        -   If a `.git` directory exists, execute `git status --porcelain`. If the output is not empty, classify as "Brownfield" (dirty repository).
-        -   Check for dependency manifests: `package.json`, `pom.xml`, `requirements.txt`, `go.mod`.
-        -   Check for source code directories: `src/`, `app/`, `lib/` containing code files.
-        -   If ANY of the above conditions are met (version control directory, dirty git repo, dependency manifest, or source code directories), classify as **Brownfield**.
+    -   **Brownfield Indicators (Primary):**
+        -   Check for dependency manifests: `package.json`, `pom.xml`, `requirements.txt`, `go.mod`, `Cargo.toml`.
+        -   Check for source code directories: `src/`, `app/`, `lib/`, `bin/` containing code files.
+        -   If ANY primary indicator is found, classify as **Brownfield**.
+    -   **Git Status Check (Secondary):**
+        -   If a `.git` directory exists, execute `git status --porcelain`. Filter out any changes within the `conductor/` directory from the output. If remaining output is not empty, this is additional evidence of a Brownfield project with uncommitted changes.
     -   **Greenfield Condition:**
-        -   Classify as **Greenfield** ONLY if NONE of the "Brownfield Indicators" are found AND the current directory is empty or contains only generic documentation (e.g., a single `README.md` file) without functional code or dependencies.
+        -   Classify as **Greenfield** ONLY if NONE of the primary "Brownfield Indicators" are found AND the current directory contains no application source code or dependency manifests (ignoring the `conductor/` directory, a clean or newly initialized `.git` folder, and a `README.md`).
 
 2.  **Execute Workflow based on Maturity:**
 -   **If Brownfield:**
@@ -113,7 +121,6 @@ CRITICAL: You must validate the success of every tool call. If any tool call fai
     -   **CRITICAL: Wait for user response before proceeding.**
     -   **Upon receiving response:**
         -   Execute `mkdir -p conductor`.
-        -   Create `conductor/setup_state.json` with: `{"last_successful_step": ""}`
         -   Write response to `conductor/product.md` under `# Initial Concept`.
 
 5.  **Continue:** Proceed to the next section.
@@ -144,9 +151,8 @@ CRITICAL: You must validate the success of every tool call. If any tool call fai
     -   **If user chose "Autogenerate":** Use your best judgment to expand on the initial project goal and infer any missing details.
     -   **If user chose "Interactive":** Use the specific answers provided. The source of truth is **only the user's selected answer(s)**.
 5.  **User Confirmation Loop:**
-    -   **Announce:** Briefly state that the draft is ready. Do NOT repeat the request to "review" or "approve" in the chat.
     -   **Ask for Approval:** Use the `AskUserQuestion` tool. You MUST embed the drafted content directly into the `question` field so the user can review it in context.
-        - **header:** "Review"
+        - **header:** "Review Draft"
         - **question:**
             Please review the drafted Product Guide below. What would you like to do next?
 
@@ -157,7 +163,6 @@ CRITICAL: You must validate the success of every tool call. If any tool call fai
             - Label: "Approve", Description: "The guide looks good, proceed to the next step."
             - Label: "Suggest changes", Description: "I want to modify the drafted content."
 6.  **Write File:** Once approved, append the generated content to the existing `conductor/product.md` file, preserving the `# Initial Concept` section.
-7.  **Commit State:** Update `conductor/setup_state.json`: `{"last_successful_step": "2.1_product_guide"}`
 
 ### 2.2 Generate Product Guidelines (Interactive)
 1.  **Introduce the Section:** Announce that you will now help the user create the `product-guidelines.md`.
@@ -181,9 +186,8 @@ CRITICAL: You must validate the success of every tool call. If any tool call fai
     -   **If user chose "Autogenerate":** Use best judgment to infer standard, high-quality guidelines.
     -   **If user chose "Interactive":** Use the specific answers provided.
 5.  **User Confirmation Loop:**
-    -   **Announce:** Briefly state that the draft is ready.
     -   **Ask for Approval:** Use the `AskUserQuestion` tool with the drafted content embedded in the `question` field.
-        - **header:** "Review"
+        - **header:** "Review Draft"
         - **question:**
             Please review the drafted Product Guidelines below. What would you like to do next?
 
@@ -194,7 +198,6 @@ CRITICAL: You must validate the success of every tool call. If any tool call fai
             - Label: "Approve", Description: "The guidelines look good, proceed to the next step."
             - Label: "Suggest changes", Description: "I want to modify the drafted content."
 6.  **Write File:** Save to `conductor/product-guidelines.md`.
-7.  **Commit State:** Update to `{"last_successful_step": "2.2_product_guidelines"}`
 
 ### 2.3 Generate Tech Stack (Interactive)
 1.  **Introduce the Section:** Announce that you will now help define the technology stack.
@@ -225,7 +228,7 @@ CRITICAL: You must validate the success of every tool call. If any tool call fai
 4.  **Draft the Document:** Generate `tech-stack.md` content.
 5.  **User Confirmation Loop:**
     -   **Ask for Approval:** Use the `AskUserQuestion` tool with the drafted content embedded.
-        - **header:** "Review"
+        - **header:** "Review Draft"
         - **question:**
             Please review the drafted Tech Stack below. What would you like to do next?
 
@@ -236,7 +239,6 @@ CRITICAL: You must validate the success of every tool call. If any tool call fai
             - Label: "Approve", Description: "The tech stack looks good, proceed to the next step."
             - Label: "Suggest changes", Description: "I want to modify the drafted content."
 6.  **Write File:** Save to `conductor/tech-stack.md`.
-7.  **Commit State:** Update to `{"last_successful_step": "2.3_tech_stack"}`
 
 ### 2.4 Select Guides (Interactive)
 1.  **Initiate Dialogue:** Announce guide selection.
@@ -263,7 +265,6 @@ CRITICAL: You must validate the success of every tool call. If any tool call fai
                 - Label: "Add More", Description: "Select additional guides from the library."
         -   **If user chose "Add More":** Use `AskUserQuestion` with `multiSelect: true` to present additional guides.
     -   **Action:** Copy selected guides to `conductor/code_styleguides/`.
-3.  **Commit State:** Update to `{"last_successful_step": "2.4_code_styleguides"}`
 
 ### 2.5 Select Workflow (Interactive)
 1.  **Copy Initial Workflow:** Copy `.claude/plugins/conductor/templates/workflow.md` to `conductor/workflow.md`.
@@ -275,7 +276,7 @@ CRITICAL: You must validate the success of every tool call. If any tool call fai
         - Label: "Customize", Description: "I want to adjust coverage requirements and commit frequency."
 
 3.  **Gather Information (Conditional):**
-    -   **If user chose "Default":** Skip to Step 5 (Commit State).
+    -   **If user chose "Default":** Proceed directly to Section 2.6 (Finalization) — use the default workflow unchanged.
     -   **If user chose "Customize":** Use `AskUserQuestion` to gather customizations:
         - Batch up to 3 questions:
             - **Coverage:** "The default required test code coverage is >80%. What is your preferred percentage?" (provide options like "70%", "80%", "90%")
@@ -283,7 +284,6 @@ CRITICAL: You must validate the success of every tool call. If any tool call fai
             - **Summaries:** "Where should I record task summaries?" (options: "Git Notes", "Commit Messages")
         - After answers, show a summary and allow final tweaks via a second `AskUserQuestion` call.
 4.  **Action:** Update `conductor/workflow.md` based on all user answers.
-5.  **Commit State:** Update to `{"last_successful_step": "2.5_workflow"}`
 
 ### 2.6 Finalization
 1.  **Generate Index File:** Create `conductor/index.md`:
@@ -309,6 +309,8 @@ CRITICAL: You must validate the success of every tool call. If any tool call fai
 ---
 
 ## 3.0 INITIAL PLAN AND TRACK GENERATION
+
+**Pre-Requisite (Cleanup):** If you are resuming this section because a previous setup was interrupted, check if the `conductor/tracks/` directory exists but is incomplete (e.g., missing `plan.md` or `index.md`). If it exists but is incomplete, **delete** the entire `conductor/tracks/` directory before proceeding to ensure a clean slate for the new track generation.
 
 ### 3.1 Generate Product Requirements (Interactive - Greenfield only)
 1.  **Transition:** Announce requirements gathering.
@@ -350,8 +352,8 @@ CRITICAL: You must validate the success of every tool call. If any tool call fai
 
     ---
 
-    ## [ ] Track: <Track Description>
-    *Link: [./conductor/tracks/<track_id>/](./conductor/tracks/<track_id>/)*
+    - [ ] **Track: <Track Description>**
+      *Link: [./tracks/<track_id>/](./tracks/<track_id>/)*
     ```
 3.  **Generate Track Artifacts:**
     a. Generate `spec.md` and `plan.md` for the track.
@@ -378,8 +380,6 @@ CRITICAL: You must validate the success of every tool call. If any tool call fai
         - [Implementation Plan](./plan.md)
         - [Metadata](./metadata.json)
         ```
-4.  **Commit State:** Update to `{"last_successful_step": "3.3_initial_track_generated"}`
-
 ### 3.4 Final Announcement
 1.  **Announce Completion:** Setup complete.
 2.  **Save Files:** `git add . && git commit -m "conductor(setup): Add conductor setup files"`

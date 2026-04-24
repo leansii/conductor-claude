@@ -19,15 +19,15 @@ CRITICAL: You must validate the success of every tool call. If any tool call fai
 ## 1.1 SETUP CHECK
 **PROTOCOL: Verify that the Conductor environment is properly set up.**
 
-1.  **Check for Required Files:** Verify existence of:
-    -   `conductor/tracks.md`
-    -   `conductor/product.md`
-    -   `conductor/tech-stack.md`
-    -   `conductor/workflow.md`
-    -   `conductor/product-guidelines.md`
+1.  **Resolve Required Files:** Using the **Universal File Resolution Protocol** (defined in CLAUDE.md), resolve and verify the existence of:
+    -   **Tracks Registry**
+    -   **Product Definition**
+    -   **Tech Stack**
+    -   **Workflow**
+    -   **Product Guidelines**
 
 2.  **Handle Missing Files:**
-    -   If ANY are missing, list the missing files, then HALT.
+    -   If ANY cannot be resolved, list the missing files, then HALT.
     -   Announce: "Conductor is not set up. Please run `/conductor:setup` to set up the environment."
     -   Do NOT proceed to Review Protocol.
 
@@ -210,7 +210,9 @@ CRITICAL: You must validate the success of every tool call. If any tool call fai
     *   **Archive:**
         i.   **Setup:** Ensure `conductor/archive/` exists.
         ii.  **Move:** Move track folder to `conductor/archive/<track_id>`.
-        iii. **Update Registry:** Remove the track's entire entry from `conductor/tracks.md` — delete the `## [x] Track:` heading, the `*Link:` line, the description text, and the `---` separator below it.
+        iii. **Update Registry:** Remove the track's entire entry from `conductor/tracks.md`. Support both formats:
+             - **List format:** Delete the `- [x] **Track:` line and the `*Link:*` line below it.
+             - **Heading format (legacy):** Delete the `## [x] Track:` heading, the `*Link:` line, the description text, and the `---` separator below it.
         iv.  **Commit:** Stage and commit: `chore(conductor): Archive track '<track_name>'`.
         v.   **Announce:** "Track '<track_name>' archived."
     *   **Delete:**
@@ -220,6 +222,6 @@ CRITICAL: You must validate the success of every tool call. If any tool call fai
             - **options:**
                 - Label: "Yes", Description: "Permanently delete the track."
                 - Label: "No", Description: "Cancel the deletion."
-        ii.  **If yes:** Delete track folder, remove from `conductor/tracks.md`, commit: `chore(conductor): Delete track '<track_name>'`, announce success.
+        ii.  **If yes:** Delete track folder, remove track entry from `conductor/tracks.md` (supporting both list and legacy heading formats), commit: `chore(conductor): Delete track '<track_name>'`, announce success.
         iii. **If no:** Cancel.
     *   **Skip:** Leave track as is.

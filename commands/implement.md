@@ -12,13 +12,13 @@ CRITICAL: You must validate the success of every tool call. If any tool call fai
 ## 1.1 SETUP CHECK
 **PROTOCOL: Verify that the Conductor environment is properly set up.**
 
-1.  **Check for Required Files:** Verify existence of:
-    -   `conductor/tech-stack.md`
-    -   `conductor/workflow.md`
-    -   `conductor/product.md`
+1.  **Resolve Required Files:** Using the **Universal File Resolution Protocol** (defined in CLAUDE.md), resolve and verify the existence of:
+    -   **Product Definition**
+    -   **Tech Stack**
+    -   **Workflow**
 
 2.  **Handle Missing Files:**
-    -   If ANY are missing, halt and announce: "Conductor is not set up. Please run `/conductor:setup` to set up the environment."
+    -   If ANY cannot be resolved, halt and announce: "Conductor is not set up. Please run `/conductor:setup` to set up the environment."
     -   Do NOT proceed to Track Selection.
 
 ---
@@ -28,7 +28,9 @@ CRITICAL: You must validate the success of every tool call. If any tool call fai
 
 1.  **Check for User Input:** Check if track name provided as argument (e.g., `/conductor:implement <track_description>`).
 
-2.  **Parse Tracks File:** Read `conductor/tracks.md`. Split by `---` separator. For each section, extract status (`[ ]`, `[~]`, `[x]`), description, and link.
+2.  **Parse Tracks File:** Read `conductor/tracks.md`. For each entry, extract status (`[ ]`, `[~]`, `[x]`), description, and link. Support both formats:
+    -   **List format:** `- [ ] **Track: <desc>**` with `*Link: ...*` on next line
+    -   **Heading format (legacy):** `## [ ] Track: <desc>` with `*Link: ...*` on next line, separated by `---`
     -   **CRITICAL:** If no tracks found, announce: "The tracks file is empty or malformed. No tracks to implement." and halt.
 
 3.  **Select Track:**
@@ -66,7 +68,9 @@ CRITICAL: You must validate the success of every tool call. If any tool call fai
 1.  **Announce Action:** Announce which track you're implementing.
 
 2.  **Update Status to 'In Progress':**
-    -   In `conductor/tracks.md`, change `## [ ] Track: <Description>` to `## [~] Track: <Description>`.
+    -   In `conductor/tracks.md`, change the track's status marker from `[ ]` to `[~]`. Support both formats:
+        -   List format: `- [ ] **Track:` → `- [~] **Track:`
+        -   Heading format (legacy): `## [ ] Track:` → `## [~] Track:`
 
 3.  **Load Track Context:**
     a. Identify track folder from the link to get `<track_id>`.
@@ -84,7 +88,7 @@ CRITICAL: You must validate the success of every tool call. If any tool call fai
            - **CRITICAL:** Every human-in-the-loop interaction, confirmation, or request for feedback mentioned in the **Workflow** (e.g., manual verification plans or guidance on persistent failures) MUST be conducted using the `AskUserQuestion` tool.
 
 5.  **Finalize Track:**
-    -   After all tasks complete, update `conductor/tracks.md`: change `## [~] Track:` to `## [x] Track:`.
+    -   After all tasks complete, update `conductor/tracks.md`: change the track's status marker from `[~]` to `[x]` (preserving whichever format the entry uses).
     -   **Commit Changes:** Stage the tracks file and commit with the message `chore(conductor): Mark track '<track_description>' as complete`.
     -   Announce track completion.
 
@@ -165,7 +169,10 @@ CRITICAL: You must validate the success of every tool call. If any tool call fai
     *   **Archive:**
         - Create `conductor/archive/` if needed.
         - Move `conductor/tracks/<track_id>` to `conductor/archive/<track_id>`.
-        - **Remove the track's entire entry from `conductor/tracks.md`:** Delete the `## [x] Track:` heading, the `*Link:` line, the description text, and the `---` separator below it. The tracks file should only contain active (incomplete) tracks.
+        - **Remove the track's entire entry from `conductor/tracks.md`.** Support both formats:
+            - **List format:** Delete the `- [x] **Track:` line and the `*Link:*` line below it.
+            - **Heading format (legacy):** Delete the `## [x] Track:` heading, the `*Link:` line, the description text, and the `---` separator below it.
+          The tracks file should only contain active (incomplete) tracks.
         - Commit with message: `chore(conductor): Archive track '<track_description>'`
         - Announce: "Track archived successfully."
 

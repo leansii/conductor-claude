@@ -18,9 +18,9 @@ CRITICAL: You must validate the success of every tool call. If any tool call fai
 ## 1.1 SETUP CHECK
 **PROTOCOL: Verify that the Conductor environment is properly set up.**
 
-1.  **Verify Tracks File:** Check if `conductor/tracks.md` exists. If not, HALT and instruct: "The project has not been set up or conductor/tracks.md has been corrupted. Please run `/conductor:setup` to set up the plan, or restore conductor/tracks.md."
+1.  **Resolve Tracks Registry:** Using the **Universal File Resolution Protocol** (defined in CLAUDE.md), resolve and verify the existence of the **Tracks Registry**. If it cannot be resolved, HALT and instruct: "The project has not been set up or the Tracks Registry is missing. Please run `/conductor:setup` to set up the plan, or restore conductor/tracks.md."
 
-2.  **Verify Track Exists:** Check if `conductor/tracks.md` is not empty. If empty, HALT with same message.
+2.  **Verify Track Exists:** Check if the resolved Tracks Registry is not empty. If empty, HALT with same message.
 
 ---
 
@@ -36,7 +36,7 @@ CRITICAL: You must validate the success of every tool call. If any tool call fai
 3.  **Interaction Paths:**
 
     *   **PATH A: Direct Confirmation**
-        1.  Find the referenced track, phase, or task in `tracks.md` or `plan.md`.
+        1.  Find the referenced track, phase, or task in the **Tracks Registry** or **Implementation Plan** files (resolved via **Universal File Resolution Protocol**).
         2.  Use the `AskUserQuestion` tool to confirm (do not repeat the question in the chat):
             - **header:** "Confirm"
             - **question:** "You asked to revert the [Track/Phase/Task]: '[Description]'. Is this correct?"
@@ -52,7 +52,7 @@ CRITICAL: You must validate the success of every tool call. If any tool call fai
 
     *   **PATH B: Guided Selection Menu**
         1.  **Identify Revert Candidates:**
-            *   Read `conductor/tracks.md` and all `conductor/tracks/*/plan.md` files.
+            *   Read the **Tracks Registry** and every track's **Implementation Plan** (resolved via **Universal File Resolution Protocol** using each track's index file).
             *   **Prioritize In-Progress:** Find all items marked `[~]`.
             *   **Fallback:** If no in-progress items, find 5 most recently completed (`[x]`).
         2.  **Present Hierarchical Menu:** Use the `AskUserQuestion` tool (do not repeat the list in the chat):

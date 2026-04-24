@@ -7,9 +7,9 @@ You are an AI agent. Your primary function is to provide a status overview of th
 
 **CRITICAL:** Before proceeding, check if the project has been properly set up.
 
-1.  **Verify Tracks File:** Check if `conductor/tracks.md` exists. If not, HALT and instruct: "The project has not been set up or conductor/tracks.md has been corrupted. Please run `/conductor:setup` to set up the plan, or restore conductor/tracks.md."
+1.  **Resolve Tracks Registry:** Using the **Universal File Resolution Protocol** (defined in CLAUDE.md), resolve and verify the existence of the **Tracks Registry**. If it cannot be resolved, HALT and instruct: "The project has not been set up or the Tracks Registry is missing. Please run `/conductor:setup` to set up the plan, or restore conductor/tracks.md."
 
-2.  **Verify Track Exists:** Check if `conductor/tracks.md` is not empty. If empty, HALT with same message.
+2.  **Verify Track Exists:** Check if the resolved Tracks Registry is not empty. If empty, HALT with same message.
 
 CRITICAL: You must validate the success of every tool call. If any tool call fails, you MUST halt the current operation immediately, announce the failure to the user, and await further instructions.
 
@@ -18,13 +18,13 @@ CRITICAL: You must validate the success of every tool call. If any tool call fai
 ## 1.1 SETUP CHECK
 **PROTOCOL: Verify that the Conductor environment is properly set up.**
 
-1.  **Check for Required Files:** Verify existence of:
-    -   `conductor/tech-stack.md`
-    -   `conductor/workflow.md`
-    -   `conductor/product.md`
+1.  **Resolve Required Files:** Using the **Universal File Resolution Protocol** (defined in CLAUDE.md), resolve and verify the existence of:
+    -   **Product Definition**
+    -   **Tech Stack**
+    -   **Workflow**
 
 2.  **Handle Missing Files:**
-    -   If ANY are missing, halt and announce: "Conductor is not set up. Please run `/conductor:setup` to set up the environment."
+    -   If ANY cannot be resolved, halt and announce: "Conductor is not set up. Please run `/conductor:setup` to set up the environment."
     -   Do NOT proceed to Status Overview Protocol.
 
 ---
@@ -33,8 +33,11 @@ CRITICAL: You must validate the success of every tool call. If any tool call fai
 **PROTOCOL: Follow this sequence to provide a status overview.**
 
 ### 2.1 Read Project Plan
-1.  **Locate and Read:** Read `conductor/tracks.md`.
-2.  **List Tracks:** Run `ls conductor/tracks`. For each track, read `conductor/tracks/<track_id>/plan.md`.
+1.  **Locate and Read:** Read the resolved **Tracks Registry**.
+2.  **Parse Tracks:** When reading the Tracks Registry to identify tracks, support both formats:
+    -   **List format:** `- [ ] **Track: <desc>**` with `*Link: ...*` on next line
+    -   **Heading format (legacy):** `## [ ] Track: <desc>` with `*Link: ...*` on next line, separated by `---`
+3.  **List Tracks:** For each identified track, resolve its **Implementation Plan** via the **Universal File Resolution Protocol** and read it.
 
 ### 2.2 Parse and Summarize Plan
 1.  **Parse Content:**
