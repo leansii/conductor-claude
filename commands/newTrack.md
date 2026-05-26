@@ -126,7 +126,17 @@ CRITICAL: You must validate the success of every tool call. If any tool call fai
             - Label: "Revise", Description: "I want to modify the implementation steps."
     Await user feedback and revise until confirmed.
 
-### 2.4 Create Track Artifacts and Update Main Plan
+### 2.4 Recommend Relevant Skills (Optional)
+1.  **Analyze:**
+    -   Inspect the **available-skills** list provided by the harness (in `<system-reminder>` blocks) and list subdirectories under `.claude/skills/` and `~/.claude/skills/`.
+    -   Cross-reference the confirmed `spec.md`, `plan.md`, and `conductor/tech-stack.md` against skill descriptions.
+2.  **Surface (no install):**
+    -   If one or more available skills are clearly relevant, announce them to the user in plain text — e.g., "The following installed skills are relevant to this track and will be activated during `/conductor:implement`: `firebase-firestore-basics`, `gcp-cicd-deploy`."
+    -   If you detect that a skill would be useful but is NOT installed (e.g., the user mentioned Firestore but no Firestore skill is available), mention it as a suggestion: "Consider installing a Firestore skill via the plugin marketplace before implementation."
+    -   **Do not** prompt with `AskUserQuestion` and **do not** attempt to install or download anything — Claude Code skill installation is handled by the plugin marketplace, not by this command.
+    -   If no skills are available or relevant, skip this step silently.
+
+### 2.5 Create Track Artifacts and Update Main Plan
 
 1.  **Check for existing track:** List `conductor/tracks/`. If proposed short name matches existing, halt and suggest different name.
 

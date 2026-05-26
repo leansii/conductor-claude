@@ -42,7 +42,7 @@ CRITICAL: You must validate the success of every tool call. If a tool call fails
     |:---|:---|:---|
     | All files in `conductor/tracks/<track_id>/` (spec, plan, metadata, index) | **HALT** | "The project is already initialized. Use `/conductor:newTrack` or `/conductor:implement`." |
     | `conductor/index.md` | **Section 3.0** | "Resuming setup: Scaffolding is complete. Next: generate the first track." |
-    | `conductor/workflow.md` | **Section 2.6** | "Resuming setup: Workflow is defined. Next: finalization." |
+    | `conductor/workflow.md` | **Section 2.6** | "Resuming setup: Workflow is defined. Next: skill awareness." |
     | `conductor/code_styleguides/` (non-empty) | **Section 2.5** | "Resuming setup: Guides configured. Next: define project workflow." |
     | `conductor/tech-stack.md` | **Section 2.4** | "Resuming setup: Tech Stack defined. Next: select Code Styleguides." |
     | `conductor/product-guidelines.md` | **Section 2.3** | "Resuming setup: Guidelines complete. Next: define Technology Stack." |
@@ -285,7 +285,17 @@ CRITICAL: You must validate the success of every tool call. If a tool call fails
         - After answers, show a summary and allow final tweaks via a second `AskUserQuestion` call.
 4.  **Action:** Update `conductor/workflow.md` based on all user answers.
 
-### 2.6 Finalization
+### 2.6 Skill Awareness (Optional)
+1.  **List Installed Skills:**
+    -   Inspect the **available-skills** list provided by the harness (in `<system-reminder>` blocks).
+    -   List subdirectories under `.claude/skills/` and `~/.claude/skills/`.
+2.  **Recommend Based on Tech Stack:**
+    -   Cross-reference `conductor/tech-stack.md` against available skill descriptions.
+    -   Announce relevant installed skills the user has — these will be auto-activated by `/conductor:implement` and `/conductor:review`.
+    -   If the tech stack mentions tools/platforms with no matching installed skill (e.g., Firebase, GCP CI/CD, Terraform), suggest the user explore the plugin marketplace (`/plugin marketplace`) before starting implementation. Do not attempt to install anything.
+3.  **Skip Silently:** If nothing relevant is found, do not block setup — proceed to 2.7.
+
+### 2.7 Finalization
 1.  **Generate Index File:** Create `conductor/index.md`:
     ```markdown
     # Project Context

@@ -67,6 +67,10 @@ CRITICAL: You must validate the success of every tool call. If any tool call fai
     -   Read `conductor/product-guidelines.md` and `conductor/tech-stack.md`.
     -   **CRITICAL:** Check for the existence of `conductor/code_styleguides/` directory.
         -   If it exists, list and read ALL `.md` files within it. These are the **Law**. Violations here are **High** severity.
+    -   **Check for Available Skills:**
+        -   Inspect the **available-skills** list from the harness (in `<system-reminder>` blocks) and list subdirectories under `.claude/skills/` and `~/.claude/skills/`.
+        -   If any skill is clearly relevant to the changes under review (e.g., a `firebase-*` skill when the diff touches Firebase code, a `gcp-cicd-*` skill when the diff touches deployment config), invoke it via the `Skill` tool (or read its `SKILL.md`) to load its guidelines.
+        -   Skill guidelines are treated as **Medium** severity by default and **High** if the skill is listed in the project's tech stack or referenced explicitly in `product-guidelines.md`.
 2.  **Load Track Context (if reviewing a track):**
     -   Read the track's `plan.md` and `spec.md`.
     -   **Extract Commits:** Parse `plan.md` to find recorded git commit hashes (usually in the "Completed" tasks or "History" section).
@@ -105,6 +109,9 @@ CRITICAL: You must validate the success of every tool call. If any tool call fai
     -   Are there new tests?
     -   Do the changes look like they are covered by existing tests?
     -   *Action:* **Execute the test suite automatically.** Infer the test command based on the codebase languages and structure (e.g., `npm test`, `pytest`, `go test`). Run it. Analyze the output for failures.
+5.  **Skill-Specific Checks:**
+    -   For each relevant skill loaded in step 2.2, verify the diff complies with its documented best practices (security patterns, naming conventions, required setup steps, etc.).
+    -   Record any violations under **Findings** with severity per the rule in 2.2.
 
 ### 2.4 Output Findings
 **Format your output strictly as follows:**

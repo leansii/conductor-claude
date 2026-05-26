@@ -80,6 +80,15 @@ CRITICAL: You must validate the success of every tool call. If any tool call fai
         - `conductor/workflow.md`
     c. If any read fails, stop and inform user.
 
+    d. **Activate Relevant Skills:**
+        - Identify available skills from two sources:
+            1. The **available-skills** list provided to you by the harness (in `<system-reminder>` blocks at session start) — these are plugin- or user-installed skills callable via the `Skill` tool.
+            2. The `.claude/skills/` directory (project-local skills) and `~/.claude/skills/` (user-global skills) — list their subdirectories.
+        - Based on the track's **Specification**, **Implementation Plan**, **Tech Stack**, and **Product Definition**, determine which available skills are relevant to this track (e.g., a `firebase-firestore-basics` skill is relevant if the track touches Firestore; a `gcp-cicd-deploy` skill is relevant if the track involves Cloud Run deployment).
+        - **CRITICAL:** For each relevant skill, invoke it via the `Skill` tool (or read its `SKILL.md` if it lives under `.claude/skills/`) BEFORE starting task execution.
+        - You MUST explicitly apply and prioritize the guidelines, commands, and constraints from these skills during the execution of the track's tasks. Skill guidance takes precedence over generic best practices.
+        - If no skills are available or none are relevant, skip this step silently — do not prompt the user.
+
 4.  **Execute Tasks and Update Track Plan:**
     a. **Announce:** State you will execute tasks following `workflow.md` procedures.
     b. **Iterate Through Tasks:** Loop through each task in `plan.md` one by one.
